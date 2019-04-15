@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<body>
+    <script type="text/javascript">
+        "use strict";
+
+        // kml object
+        class KMLParser {
+            constructor(kmlString) {
+                this.kmlRaw = kmlString;
+                this.folders = {
+                    "path": "",
+                    "level": 0,
+                    "placemarkCount": 0,
+                    "placemarks": {}
+                };
+                this.styles = {};
+                this.styleMaps = {};
+            };
+
+            processKml(kmlString) {
+                let kmlRaw = "";
+
+                // if kml is empty; use the base string
+                if (!kmlString) {
+                    kmlRaw = this.kmlRaw;
+                } else {
+                    kmlRaw = kmlString;
+                }
+
+                // parse using DOM, or ActiveX, otherwise return null.
+                console.log("1001-01", kmlString, kmlRaw);
+
+                if (typeof ActiveXObject !== 'undefined' && typeof GetObject !== 'undefined') {
+                    let doc = new ActiveXObject('Microsoft.XMLDOM');
+                    doc.loadXML(kmlRaw);
+                    this.kmlDOC = doc;
+                    console.log(doc);
+                }
+
+                if (typeof DOMParser !== 'undefined') {
+                    let doc = (new DOMParser()).parseFromString(kmlRaw, 'text/xml');
+                    this.kmlDOC = doc;
+                    console.log("document-root", doc, this.kmlDOC.kml);
+                }
+
+                // build the folder structure
+                this.discoverNodes(this.kmlDOC);
+
+                // get all shared styles
+                // this.initializeSharedStyles(this.kmlDOC.children[0].children[0]);
+                //let styles = this.kmlDOC.getElementsByTagName("Style");
+                //console.log("styles", styles);
+
+                //let folders = this.kmlDOC.getElementsByTagName("Folder");
+                //console.log("folder", folders);
+                //Array.prototype.forEach.call(folders, function(folder) {
+                //    console.log(folder.children);
+                //    console.log(folder.getElementsByTagName("Folder"));
+                //});
+
+                //let lStyles = styles.getElementsByTagName("LineStyle");
+                //console.log(lStyles);
+                // folders present?
+
+                // placemarks only?
+
+                // network link?
+            };
+
+            discoverNodes(node) {
+                console.log("root// ", node.nodeName, node);
+
+                // scan for features
+                let level = 0;
+                this.folders = this.discoverChildNodes(level, node, this.folders);
+
+                // scan for networklink
+
+                console.log(this.folders, this.styles, this.stylesMaps);
+            };
+
+            discoverChildNodes(level, node, folders) {
+                // process child items
+                let skipChildren = false;
+                for (let childItem of node.childNodes) {
+                    level++;
+                    let savedFolder = folders;
+                    skipChildren = false;
+
+                    if ((childItem.nodeName !== "#text") && (childItem.nodeName !== "#comment")) {
+                        console.log("|".padEnd(level, "-") + "child// ", childItem.nodeName, childItem);
+
+                        // scan for all placemarks and store them into folder
+                        if (childItem.nodeName === "Placemark") {
+                            skipChildren = true;
+
+                            let id = this.getNodeAttribute(childItem, "id");
+                            let name = this.getNodeValue(childItem, "name");
+                            console.log("Placemark// ", id, name);
+
+                            folders.placemarkCount++;
+                            id = (id || name || folders.placemarkCount);
+                            folders.placemarks[id] = childItem;
+                        }
+                        
+                        // if a folder or document; create hiearchy tree
+                        if ((childItem.nodeName === "Folder") || (childItem.nodeName === "Document")) {
+                            let name = this.getNodeValue(childItem, "name");
+                            console.log(name);
+
+                            if (name && (name !== "")) {
+                                folders[name] = {
+                                    "path": savedFolder.path + "/" + name,
+                                    "level": level,
+                                    "placemarkCount": 0,
+                                    "placemarks": {}
+                                };
+
+                                folders = folders[name];
+                                console.log(JSON.stringify(this.folders));
+                            }
+                        }
+
+                        // style; store in global lookup
+                        if (childItem.nodeName === "Style") {
+                            skipChildren = true;
+
+                            let id = this.getNodeAttribute(childItem, "id");
+                            console.log("Style// ", id);
+                            this.styles[id] = childItem;
+                        }
+                        if (childItem.nodeName === "StyleMap") {
+                            skipChildren = true;
+
+                            let id = this.getNodeAttribute(childItem, "id");
+                            console.log("StyleMap// ", id);
+                            this.styleMaps[id] = childItem;
+                        }
+
+                        // scan child nodes
+                        if (!skipChildren && childItem.childNodes) {
+                            this.discoverChildNodes(level, childItem, folders);
+                            folders = savedFolder;
+                        }
+                    }
+                    level--;
+                }
+
+                return folders;
+            };
+
+            getNodeValue(node, element) {
+                let value = undefined;
+                for (let childItem of node.childNodes) {
+                    if (childItem.nodeName === element) {
+                        value = (childItem.innerText || childItem.text || childItem.textContent);
+                    }
+                }
+
+                return (value ? value.trim() : value);
+            };
+
+            getNodeAttribute(node, attribute) {
+                let value = undefined;
+                value = node.getAttribute(attribute);
+
+                return value;
+            };
+
+            getNodeBooleanValue(node) {
+                var value = this.getNodeTextValue(node);
+
+                switch (value.toLowerCase()) {
+                    case "false": case "no": case "0": case null: case undefined: return false;
+                    default: return true;
+                }
+            };
+
+            getNodeIntegerValue(node) {
+                var value = this.getNodeTextValue(node);
+                return parseInt(value, 10);
+            };
+
+            getNodeFloatValue(node) {
+                var value = this.getNodeTextValue(node);
+                return parseFloat(value);
+            };
+
+            initializeSharedStyles(node) {
+                console.log("1002-01", node);
+                var styles = node.getElementsByTagName("Style");
+                console.log("1002-02", styles);
+
+                // initialize default styles
+                this.buildStyle(styles[0].children);
+            };
+
+            buildStyle(styles) {
+                //console.log(style, styleId);
+
+                // IconStyle
+                var styleNodes = styles[0].children.getElementsByTagName("LineStyle");
+                // LineStyle
+                // LineStyle
+                // PolyStyle
+                // BalloonStyle
+
+                // parse all styles and store style info
+                console.log(styleNodes);
+                var styleId, styleNode, nodeId;
+                Object.keys(styleNodes).forEach(function (style) {
+                    nodeId = style.getAttribute("id");
+
+                    if (nodeId) {
+                        styleId = "#" + nodeId;
+                        console.log(styleId);
+                    }
+                });
+            }
+
+            getStyle(styleUrl) {
+
+            };
+
+            getFolder(cfolder, pFolder) {
+
+            };
+
+            getDocument() {
+
+            };
+
+            getPlacemarks(pFolder) {
+
+            };
+
+            getNetworkLink() {
+
+            };
+        };
+    </script>
+    <script type="text/javascript">
+        var xhttp;
+        if (window.XMLHttpRequest) {
+            // code for modern browsers
+            xhttp = new XMLHttpRequest();
+        } else {
+            // code for IE6, IE5
+            xhttp = new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this.responseText);
+
+                let parser = new KMLParser();
+                parser.processKml(this.responseText);
+            }
+        };
+        xhttp.open("GET", "/files?file=placemark_folder_document_test2.kml", true);
+        xhttp.send();
+    </script>
+    <h1> Loaded!! </h1>
+</body>
+
+</html>
