@@ -1,5 +1,7 @@
 kmlfiles
 
+# IN-WORK ** NOT FINISHED **
+
 # Goals:
 ## 1. working on parser which is generic to use with multiple mapping platforms.
 ## 2. support folders and documents
