@@ -12,6 +12,52 @@ class KMLParser {
         };
         this.styles = {};
         this.styleMaps = {};
+        this.stylesDefault = {
+            "IconStyle": {
+                "color": "ff00ff00",
+                "colorMode": "random",              /* normal, random */
+                "scale": "1.1",
+                "Icon": {
+                    "href": "https://maps.google.com/mapfiles/kml/pal3/icon21.png",
+                },
+                "heading": "0.0",
+                "hotSpot": ""
+            },
+            "LabelStyle": {
+                "color": "ff0000cc",
+                "colorMode": "random",
+                "scale": "1.5"
+            },
+            "LineStyle": {
+                "color": "7f0000ff",
+                "colorMode": "random",
+                "width": "4"
+            },
+            "PolyStyle": {
+                "color": "ff0000cc",
+                "colorMode": "random",
+                "fill": "1",
+                "outline": "1"
+            },
+            "ListStyle": {
+                "listItemType": "checkHideChildren",    /* radioFolder, check, checkHideChildren, checkOffOnly */
+                "bgColor": "ff336699",
+                "ItemIcon": {
+                    "state": "closed",
+                    "href": "https://maps.google.com/mapfiles/kml/pal3/icon21.png",
+                },
+                "maxSnippetLines": "5"
+            },
+            "BalloonStyle": {
+                "bgColor": "ffffffbb",
+                "textColor": "CC0000",
+                "displayMode": "default"                /* default, hide */
+            }
+        };
+    };
+
+    _defaultStyles(styleType) {
+
     };
 
     processKml(kmlString) {
@@ -113,6 +159,28 @@ class KMLParser {
         return folders;
     };
 
+    getNodeBooleanValue(node) {
+        var value = this.getNodeTextValue(node);
+
+        switch (value.toLowerCase()) {
+            case "error": case "reject": case "closed": case "hide": 
+            case "false": case "off": case "no":
+            case "0":
+            case null: case undefined: return false;
+            default: return true;
+        }
+    };
+
+    getNodeIntegerValue(node) {
+        var value = this.getNodeTextValue(node);
+        return parseInt(value, 10);
+    };
+
+    getNodeFloatValue(node) {
+        var value = this.getNodeTextValue(node);
+        return parseFloat(value);
+    };
+
     getNodeValue(node, element) {
         let value = undefined;
         for (let childItem of node.childNodes) {
@@ -131,28 +199,8 @@ class KMLParser {
         return value;
     };
 
-    getNodeBooleanValue(node) {
-        var value = this.getNodeTextValue(node);
+    createLayer() {
 
-        switch (value.toLowerCase()) {
-            case "false": case "no": case "0": case null: case undefined: return false;
-            default: return true;
-        }
-    };
-
-    getNodeIntegerValue(node) {
-        var value = this.getNodeTextValue(node);
-        return parseInt(value, 10);
-    };
-
-    getNodeFloatValue(node) {
-        var value = this.getNodeTextValue(node);
-        return parseFloat(value);
-    };
-
-    initializeSharedStyles(node) {
-        // initialize default styles
-        this.buildStyle(styles[0].children);
     };
 
     buildStyle(styles) {
@@ -161,6 +209,8 @@ class KMLParser {
         // LineStyle
         // PolyStyle
         // BalloonStyle
+        // ListStyle
+        // LabelStyle
 
         // parse all styles and store style info
         console.log(styleNodes);
@@ -174,24 +224,4 @@ class KMLParser {
             }
         });
     }
-
-    getStyle(styleUrl) {
-
-    };
-
-    getFolder(cfolder, pFolder) {
-
-    };
-
-    getDocument() {
-
-    };
-
-    getPlacemarks(pFolder) {
-
-    };
-
-    getNetworkLink() {
-
-    };
 };
