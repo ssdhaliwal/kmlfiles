@@ -162,8 +162,8 @@ class KMLParser {
 
     getBoolean(value) {
         switch (value.toLowerCase()) {
-            case "error": case "reject": case "closed": case "hide":
-            case "false": case "off": case "no":
+            case "error": case "reject": case "closed": case "hide": case "hidden":
+            case "false": case "off": case "no": case "none":
             case "0":
             case null: case undefined: return false;
             default: return true;
@@ -300,12 +300,12 @@ class KMLParser {
 
                 let scale = this.getNodeValue(childNodes, "scale");
                 if (scale) {
-                    value.IconStyle.scale = scale;
+                    value.IconStyle.scale = parseFloat(scale);
                 }
 
                 let heading = this.getNodeValue(childNodes, "heading");
                 if (heading) {
-                    value.IconStyle.heading = heading;
+                    value.IconStyle.heading = parseFloat(heading);
                 }
 
                 let iconNodes = childNodes.getElementsByTagName("Icon")[0];
@@ -333,7 +333,7 @@ class KMLParser {
 
                 let width = this.getNodeValue(childNodes, "width");
                 if (width) {
-                    value.LineStyle.width = width;
+                    value.LineStyle.width = parseInt(width);
                 }
             }
 
@@ -356,12 +356,12 @@ class KMLParser {
 
                 let fill = this.getNodeValue(childNodes, "fill");
                 if (fill) {
-                    value.PolyStyle.fill = fill;
+                    value.PolyStyle.fill = this.getBoolean(fill);
                 }
 
                 let outline = this.getNodeValue(childNodes, "outline");
                 if (outline) {
-                    value.PolyStyle.outline = outline;
+                    value.PolyStyle.outline = this.getBoolean(outline);
                 }
             }
 
@@ -389,7 +389,7 @@ class KMLParser {
 
                 let displayMode = this.getNodeValue(childNodes, "displayMode");
                 if (displayMode) {
-                    value.BalloonStyle.displayMode = displayMode;
+                    value.BalloonStyle.displayMode = this.getBoolean(displayMode);
                 }
             }
 
@@ -417,7 +417,7 @@ class KMLParser {
 
                 let maxSnippetLines = this.getNodeValue(childNodes, "maxSnippetLines");
                 if (maxSnippetLines) {
-                    value.ListStyle.maxSnippetLines = maxSnippetLines;
+                    value.ListStyle.maxSnippetLines = parseInt(maxSnippetLines);
                 }
 
                 let itemIconNodes = childNodes.getElementsByTagName("ItemIcon");
@@ -457,7 +457,7 @@ class KMLParser {
 
                 let scale = this.getNodeValue(childNodes, "scale");
                 if (scale) {
-                    value.LabelStyle.scale = scale;
+                    value.LabelStyle.scale = parseFloat(scale);
                 }
             }
         }
