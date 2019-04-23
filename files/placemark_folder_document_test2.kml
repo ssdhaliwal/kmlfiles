@@ -258,6 +258,18 @@
 		<Style id="checkHideChildrenExample">
 			<ListStyle>
 				<listItemType>checkHideChildren</listItemType>
+				<ItemIcon id=1>
+					<state>open</state>
+					<href>http://maps.google.com/mapfiles/kml/pal3/icon21.png</href>
+				</ItemIcon>
+				<ItemIcon id=2>
+					<state>partial</state>
+					<href>http://maps.google.com/mapfiles/kml/pal3/icon22.png</href>
+				</ItemIcon>
+				<ItemIcon id=3>
+					<state>closed</state>
+					<href>http://maps.google.com/mapfiles/kml/pal3/icon23.png</href>
+				</ItemIcon>
 			</ListStyle>
 		</Style>
 		<Style id="radioFolderExample">

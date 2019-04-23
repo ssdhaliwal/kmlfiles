@@ -14,5 +14,13 @@
     "yargs": "^13.2.2"
   },
   "devDependencies": {},
-  "description": ""
+  "description": "kmlfiles",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ssdhaliwal/kmlfiles.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ssdhaliwal/kmlfiles/issues"
+  },
+  "homepage": "https://github.com/ssdhaliwal/kmlfiles#readme"
 }
