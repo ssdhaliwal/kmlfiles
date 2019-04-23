@@ -421,8 +421,20 @@ class KMLParser {
                 }
 
                 let itemIconNodes = childNodes.getElementsByTagName("ItemIcon");
-                if (itemIconNodes) {
-                    console.log(itemIconNodes);
+                if (itemIconNodes && (itemIconNodes.length > 0)) {
+                    value.ListStyle.ItemIcon = {};
+
+                    for(let ii = 0; ii < itemIconNodes.length; ii++) {
+                        let id = this.getNodeAttribute(itemIconNodes[ii], "id");
+                        let state = this.getNodeValue(itemIconNodes[ii], "state");
+                        let href = this.getNodeValue(itemIconNodes[ii], "href");
+                        
+                        value.ListStyle.ItemIcon[state] = {
+                            id: id,
+                            state: state,
+                            href: href
+                        }
+                    }
                 }
             }
 
