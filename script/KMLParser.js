@@ -93,7 +93,6 @@ class KMLParser {
         this.folders = this.discoverChildNodes(level, node, this.folders);
 
         // scan for networklink
-
         console.log(this.folders, this.styles, this.styleMaps);
     };
 
@@ -271,7 +270,7 @@ class KMLParser {
     };
 
     getDefaultStyle(styleType) {
-        return this.stylesDefault[styleType];
+        return JSON.parse(JSON.stringify(this.stylesDefault[styleType]));
     };
 
     getStyle(styleUrl) {
@@ -310,6 +309,7 @@ class KMLParser {
 
                 let iconNodes = childNodes.getElementsByTagName("Icon")[0];
                 if (iconNodes) {
+                    console.log(JSON.stringify(value));
                     value.IconStyle.Icon.href = this.getNodeValue(iconNodes, "href");
                 }
             }
@@ -424,11 +424,11 @@ class KMLParser {
                 if (itemIconNodes && (itemIconNodes.length > 0)) {
                     value.ListStyle.ItemIcon = {};
 
-                    for(let ii = 0; ii < itemIconNodes.length; ii++) {
+                    for (let ii = 0; ii < itemIconNodes.length; ii++) {
                         let id = this.getNodeAttribute(itemIconNodes[ii], "id");
                         let state = this.getNodeValue(itemIconNodes[ii], "state");
                         let href = this.getNodeValue(itemIconNodes[ii], "href");
-                        
+
                         value.ListStyle.ItemIcon[state] = {
                             id: id,
                             state: state,
@@ -465,11 +465,45 @@ class KMLParser {
         return value;
     };
 
+    getStyleMap(styleMapUrl) {
+        let value = {};
+        let styleNode = this.styleMaps[styleMapUrl];
+
+        if (styleNode) {
+            let stylePairs = styleNode.getElementsByTagName("Pair");
+            if (stylePairs && (stylePairs.length > 0)) {
+                value[styleMapUrl] = {};
+
+                for (let ii = 0; ii < stylePairs.length; ii++) {
+                    let key = this.getNodeValue(stylePairs[ii], "key");
+                    let style = this.getNodeValue(stylePairs[ii], "styleUrl");
+
+                    value[styleMapUrl][key] = {
+                        styleUrl: style,
+                        style: this.styles[style].styleObject
+                    }
+                }
+            }
+        }
+
+        return value;
+    };
+
     createLayer() {
         let self = this;
+
+        // build style objects
         Object.keys(self.styles).forEach(function (item) {
             console.log(item, self.styles[item]); // value
-            console.log(self.getStyle(item));
+            self.styles[item].styleObject = self.getStyle(item);
+            console.log(JSON.stringify(self.styles[item].styleObject));
+        });
+
+        // build stylemaps
+        Object.keys(self.styleMaps).forEach(function (item) {
+            console.log(item, self.styleMaps[item]); // value
+            self.styleMaps[item].styleObject = self.getStyleMap(item);
+            console.log(JSON.stringify(self.styleMaps[item].styleObject));
         });
     };
 };

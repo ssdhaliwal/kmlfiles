@@ -10,7 +10,7 @@
 			<styleUrl>#orange-5px</styleUrl>
 			<LineString>
 				<tessellate>1</tessellate>
-				<coordinates>  				8.541967280275596,47.36615976289033,0 8.544304513152113,47.36655716364855,0 				</coordinates>
+				<coordinates>-135,30,500000 -80,30,500000</coordinates>
 			</LineString>
 		</Placemark>
 		<Folder>
@@ -26,7 +26,7 @@
 							<styleUrl>#orange-5px</styleUrl>
 							<LineString>
 								<tessellate>1</tessellate>
-								<coordinates>	   				8.541785133887323,47.36677970505284,0 8.544153942262056,47.36714394255758,0 								</coordinates>
+								<coordinates>-122.378927,37.826793,0</coordinates>
 							</LineString>
 						</Placemark>
 						<Placemark>
@@ -34,7 +34,7 @@
 							<styleUrl>#orange-5px</styleUrl>
 							<LineString>
 								<tessellate>1</tessellate>
-								<coordinates>	   				8.541785133887323,47.36677970505284,0 8.544153942262056,47.36714394255758,0 								</coordinates>
+								<coordinates>1,1,0</coordinates>
 							</LineString>
 						</Placemark>
 						<Placemark>
@@ -42,7 +42,7 @@
 							<styleUrl>#orange-5px</styleUrl>
 							<LineString>
 								<tessellate>1</tessellate>
-								<coordinates>	   				8.541785133887323,47.36677970505284,0 8.544153942262056,47.36714394255758,0 								</coordinates>
+								<coordinates>1,2,0</coordinates>
 							</LineString>
 						</Placemark>
 						<Placemark>
@@ -50,7 +50,7 @@
 							<styleUrl>#orange-5px</styleUrl>
 							<LineString>
 								<tessellate>1</tessellate>
-								<coordinates>	   				8.541785133887323,47.36677970505284,0 8.544153942262056,47.36714394255758,0 								</coordinates>
+								<coordinates>>-122.000,37.002,0</coordinates>
 							</LineString>
 						</Placemark>
 						<Placemark>
@@ -58,7 +58,7 @@
 							<styleUrl>#orange-5px</styleUrl>
 							<LineString>
 								<tessellate>1</tessellate>
-								<coordinates>					8.54184232399809,47.36647498852937,0 8.544170241436506,47.36685501672338,0 								</coordinates>
+								<coordinates>-121.998,37.0078,0</coordinates>
 							</LineString>
 						</Placemark>
 						<Placemark>
@@ -66,7 +66,7 @@
 							<styleUrl>#orange-5px</styleUrl>
 							<LineString>
 								<tessellate>1</tessellate>
-								<coordinates>  				8.541967280275596,47.36615976289033,0 8.544304513152113,47.36655716364855,0 								</coordinates>
+								<coordinates>-122.377588,37.830266,0</coordinates>
 							</LineString>
 						</Placemark>
 					</Document>
@@ -79,7 +79,7 @@
 						<styleUrl>#orange-5px</styleUrl>
 						<LineString>
 							<tessellate>1</tessellate>
-							<coordinates>	   			8.54184232399809,47.36647498852937,0 8.544170241436506,47.36685501672338,0 							</coordinates>
+							<coordinates>-122.377830,37.830445,0</coordinates>
 						</LineString>
 					</Placemark>
 					<Placemark>
@@ -87,7 +87,7 @@
 						<styleUrl>#orange-5px</styleUrl>
 						<LineString>
 							<tessellate>1</tessellate>
-							<coordinates>	   				8.541785133887323,47.36677970505284,0 8.544153942262056,47.36714394255758,0 							</coordinates>
+							<coordinates>-122.377576,37.830631,0</coordinates>
 						</LineString>
 					</Placemark>
 					<Placemark>
@@ -95,7 +95,7 @@
 						<styleUrl>#orange-5px</styleUrl>
 						<LineString>
 							<tessellate>1</tessellate>
-							<coordinates>  				8.541967280275596,47.36615976289033,0 8.544304513152113,47.36655716364855,0 							</coordinates>
+							<coordinates>-122.377840,37.830642,0</coordinates>
 						</LineString>
 					</Placemark>
 				</Folder>
@@ -104,7 +104,7 @@
 					<styleUrl>#orange-5px</styleUrl>
 					<LineString>
 						<tessellate>1</tessellate>
-						<coordinates>  				8.541967280275596,47.36615976289033,0 8.544304513152113,47.36655716364855,0 						</coordinates>
+						<coordinates>-122.377830,37.830445,0</coordinates>
 					</LineString>
 				</Placemark>
 			</Document>
@@ -114,7 +114,7 @@
 			<styleUrl>#orange-5px</styleUrl>
 			<LineString>
 				<tessellate>1</tessellate>
-				<coordinates>  				8.541967280275596,47.36615976289033,0 8.544304513152113,47.36655716364855,0 				</coordinates>
+				<coordinates>-90.86948943473118,48.25450093195546,0</coordinates>
 			</LineString>
 		</Placemark>
 		<Folder>
@@ -125,7 +125,7 @@
 				<styleUrl>#orange-5px</styleUrl>
 				<LineString>
 					<tessellate>1</tessellate>
-					<coordinates>  				8.541967280275596,47.36615976289033,0 8.544304513152113,47.36655716364855,0 					</coordinates>
+					<coordinates>-122.378009,37.830128,0 -122.377885,37.830379,0</coordinates>
 				</LineString>
 			</Placemark>
 			<Placemark>
@@ -133,7 +133,7 @@
 				<styleUrl>#orange-5px</styleUrl>
 				<LineString>
 					<tessellate>1</tessellate>
-					<coordinates>	   				8.541785133887323,47.36677970505284,0 8.544153942262056,47.36714394255758,0 					</coordinates>
+					<coordinates>-122.4425587930444,37.80666418607323,0 -122.4428379594768,37.80663578323093,0</coordinates>
 				</LineString>
 			</Placemark>
 		</Folder>
@@ -142,7 +142,7 @@
 			<styleUrl>#orange-5px</styleUrl>
 			<LineString>
 				<tessellate>1</tessellate>
-				<coordinates>  				8.541967280275596,47.36615976289033,0 8.544304513152113,47.36655716364855,0 				</coordinates>
+				<coordinates>-122.4425509770566,37.80662588061205,0 -122.4428340530617,37.8065999493009,0</coordinates>
 			</LineString>
 		</Placemark>
 		<Style id="orange-5px">
@@ -211,7 +211,7 @@
 				<styleUrl>#normalState</styleUrl>
 			</Pair>
 			<Pair>
-				<key>highlight</key>
+				<key>highlighted</key>
 				<styleUrl>#highlightState</styleUrl>
 			</Pair>
 		</StyleMap>
