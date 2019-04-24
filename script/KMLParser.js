@@ -8,7 +8,7 @@ class KMLParser {
             "path": "",
             "level": 0,
             "placemarkCount": 0,
-            "placemarks": {}
+            "_placemarks": {}
         };
         this.styles = {};
         this.styleMaps = {};
@@ -114,7 +114,7 @@ class KMLParser {
 
                     folders.placemarkCount++;
                     id = (id || name || folders.placemarkCount);
-                    folders.placemarks[id] = childItem;
+                    folders._placemarks[id] = childItem;
                 }
 
                 // if a folder or document; create hiearchy tree
@@ -126,7 +126,7 @@ class KMLParser {
                             "path": savedFolder.path + "/" + name,
                             "level": level,
                             "placemarkCount": 0,
-                            "placemarks": {}
+                            "_placemarks": {}
                         };
 
                         folders = folders[name];
@@ -489,6 +489,49 @@ class KMLParser {
         return value;
     };
 
+    processPlacemark(placemark) {
+        let self = this;
+        let feature = {};
+
+        console.log(placemark);
+        // extract top-level feature items
+        // OGC_KML_2.2 9.11.1
+
+        // MultiGeometry
+
+        // LineString
+
+        // Polygon
+
+        // Point
+
+        // LinearRing
+
+        // Model
+    };
+
+    processFeature(geometry) {
+
+    };
+
+    processPlacemarks(folders) {
+        let self = this;
+        
+        // process local placemarks
+        Object.keys(folders._placemarks).forEach(function (placemark) {
+            console.log(folders.path + " -> " + placemark);
+            self.createPlacemarks(folders._placemarks[placemark]);
+        });
+
+        // process sub-folders
+        Object.keys(folders).forEach(function (folder) {
+            if ((folder !== "_placemarks") && (folders[folder] instanceof Object)) {
+                console.log(folder);
+                self.processPlacemarks(folders[folder]);
+            }
+        });
+    };
+
     createLayer() {
         let self = this;
 
@@ -505,5 +548,8 @@ class KMLParser {
             self.styleMaps[item].styleObject = self.getStyleMap(item);
             console.log(JSON.stringify(self.styleMaps[item].styleObject));
         });
+
+        // process placemarks
+        self.processPlacemarks(self.folders);
     };
 };
