@@ -8,7 +8,7 @@ class KMLParser {
             "path": "",
             "level": 0,
             "placemarkCount": 0,
-            "_placemarks": {}
+            "_placemarks": []
         };
         this.styles = {};
         this.styleMaps = {};
@@ -99,57 +99,63 @@ class KMLParser {
     discoverChildNodes(level, node, folders) {
         // process child items
         let skipChildren = false;
-        for (let childItem of node.childNodes) {
+        for (let childNode of node.childNodes) {
             level++;
             let savedFolder = folders;
             skipChildren = false;
 
-            if ((childItem.nodeName !== "#text") && (childItem.nodeName !== "#comment")) {
+            if ((childNode.nodeName !== "#text") && (childNode.nodeName !== "#comment")) {
                 // scan for all placemarks and store them into folder
-                if (childItem.nodeName === "Placemark") {
+                if (childNode.nodeName === "Placemark") {
                     skipChildren = true;
 
-                    let id = this.getNodeAttribute(childItem, "id");
-                    let name = this.getNodeValue(childItem, "name");
+                    let id = this.getNodeAttribute(childNode, "id");
+                    let name = this.getNodeValue(childNode, "name");
 
                     folders.placemarkCount++;
                     id = (id || name || folders.placemarkCount);
-                    folders._placemarks[id] = childItem;
+                    childNode.id = id;
+                    folders._placemarks.push(childNode);
                 }
 
                 // if a folder or document; create hiearchy tree
-                if ((childItem.nodeName === "Folder") || (childItem.nodeName === "Document")) {
-                    let name = this.getNodeValue(childItem, "name");
+                if ((childNode.nodeName === "Folder") || (childNode.nodeName === "Document")) {
+                    let name = this.getNodeValue(childNode, "name");
 
                     if (name && (name !== "")) {
-                        folders[name] = {
-                            "path": savedFolder.path + "/" + name,
-                            "level": level,
-                            "placemarkCount": 0,
-                            "_placemarks": {}
-                        };
+                        if (folders.placemarkCount > 0) {
+                            folders[name] = {
+                                "path": savedFolder.path + "/" + name,
+                                "level": level,
+                                "placemarkCount": 0,
+                                "_placemarks": []
+                            };
 
-                        folders = folders[name];
+                            folders = folders[name];
+                        } else {
+                            folders.path = savedFolder.path + "/" + name;
+                            folders.level = level;
+                        }
                     }
                 }
 
                 // style; store in global lookup
-                if (childItem.nodeName === "Style") {
+                if (childNode.nodeName === "Style") {
                     skipChildren = true;
 
-                    let id = this.getNodeAttribute(childItem, "id");
-                    this.styles["#" + id] = childItem;
+                    let id = this.getNodeAttribute(childNode, "id");
+                    this.styles["#" + id] = childNode;
                 }
-                if (childItem.nodeName === "StyleMap") {
+                if (childNode.nodeName === "StyleMap") {
                     skipChildren = true;
 
-                    let id = this.getNodeAttribute(childItem, "id");
-                    this.styleMaps["#" + id] = childItem;
+                    let id = this.getNodeAttribute(childNode, "id");
+                    this.styleMaps["#" + id] = childNode;
                 }
 
                 // scan child nodes
-                if (!skipChildren && childItem.childNodes) {
-                    this.discoverChildNodes(level, childItem, folders);
+                if (!skipChildren && childNode.childNodes) {
+                    this.discoverChildNodes(level, childNode, folders);
                     folders = savedFolder;
                 }
             }
@@ -178,6 +184,20 @@ class KMLParser {
         }
 
         return (value ? value.trim() : value);
+    };
+
+    getNodeValues(node, element, feature) {
+        for (let childItem of node.childNodes) {
+            if (element.indexOf(childItem.nodeName) >= 0) {
+                let value = (childItem.innerText || childItem.text || childItem.textContent);
+
+                if (value) {
+                    feature[childItem.nodeName] = value.trim();
+                }
+            }
+        }
+
+        return feature;
     };
 
     getNodeAttribute(node, attribute) {
@@ -496,32 +516,72 @@ class KMLParser {
         console.log(placemark);
         // extract top-level feature items
         // OGC_KML_2.2 9.11.1
+        let id = self.getNodeAttribute(placemark, "id");
+        if (id) {
+            feature.id = id;
+        }
 
+        self.getNodeValues(placemark, ["name", "visibility", "open", "author", "link", "address",
+            "addressDetails", "phoneNumber", "snippet", "description", "styleUrl"], feature);
+        console.log(placemark, feature);
+
+        // process all features in the placemark
         // MultiGeometry
+        if (placemark.getElementsByTagName("MultiGeometry").length > 0) {
+            for (let childItem of placemark.childNodes) {
+                self.processPlacemark(childItem, feature);
+            }
+        } else {
+            // LineString
+            if (placemark.getElementsByTagName("LineString").length > 0) {
+                console.log("-> LineString Feature");
+            }
 
-        // LineString
+            // Polygon
+            if (placemark.getElementsByTagName("Polygon").length > 0) {
+                console.log("-> Polygon Feature");
+            }
 
-        // Polygon
+            // Point
+            if (placemark.getElementsByTagName("Point").length > 0) {
+                console.log("-> Point Feature");
+            }
 
-        // Point
+            // LinearRing
+            if (placemark.getElementsByTagName("LinearRing").length > 0) {
+                console.log("-> LinearRing Feature");
+            }
 
-        // LinearRing
-
-        // Model
+            // Model
+            if (placemark.getElementsByTagName("Model").length > 0) {
+                console.log("-> Model Feature");
+            }
+        }
     };
 
-    processFeature(geometry) {
+    processGeometry(placemarks, placemark) {
+        let point = placemarks[0].getElementsByTagName("Point");
 
+        console.log(point, placemark);
     };
 
     processPlacemarks(folders) {
         let self = this;
-        
+
         // process local placemarks
-        Object.keys(folders._placemarks).forEach(function (placemark) {
-            console.log(folders.path + " -> " + placemark);
-            self.createPlacemarks(folders._placemarks[placemark]);
-        });
+        console.log(folders._placemarks, typeof (folders._placemarks));
+
+        //folders._placemarks.forEach(self.processGeometry.bind(self, folders._placemarks));
+        for (let i = 0; i < folders._placemarks.length; i++) {
+            let placemark = folders._placemarks[i];
+            console.log(placemark, typeof (placemark));
+
+            this.processPlacemark(placemark);
+            //let name = placemark.getElementsByTagName("name");
+            //let styleUrl = placemark.getElementsByTagName("styleUrl");
+            //let Point = placemark.getElementsByTagName("Point");
+            //console.log(name, styleUrl, Point);
+        }
 
         // process sub-folders
         Object.keys(folders).forEach(function (folder) {
@@ -550,6 +610,7 @@ class KMLParser {
         });
 
         // process placemarks
+        console.log(self.folders);
         self.processPlacemarks(self.folders);
     };
 };
