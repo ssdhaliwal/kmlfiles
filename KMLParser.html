@@ -45,10 +45,10 @@
                 let parser = new KMLParser();
                 parser.processKml(this.responseText);
                 console.log(parser);
-                parser.createLayer();
+                parser.createLayer(map, null);
             }
         };
-        xhttp.open("GET", "/files?file=placemark_folder_document_test3.kml", true);
+        xhttp.open("GET", "/files?file=placemark_folder_document_test2.kml", true);
         xhttp.send();
     </script>
     <div id="map"></div>

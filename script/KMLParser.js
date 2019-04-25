@@ -113,6 +113,8 @@ class KMLParser {
                     let name = this.getNodeValue(childNode, "name");
 
                     folders.placemarkCount++;
+
+                    // fix id for placemark
                     id = (id || name || folders.placemarkCount);
                     childNode.id = id;
                     folders._placemarks.push(childNode);
@@ -180,15 +182,16 @@ class KMLParser {
         for (let childItem of node.childNodes) {
             if (childItem.nodeName === element) {
                 value = (childItem.innerText || childItem.text || childItem.textContent);
+                break;
             }
         }
 
         return (value ? value.trim() : value);
     };
 
-    getNodeValues(node, element, feature) {
+    getNodeValues(node, elements, feature) {
         for (let childItem of node.childNodes) {
-            if (element.indexOf(childItem.nodeName) >= 0) {
+            if (elements.indexOf(childItem.nodeName) >= 0) {
                 let value = (childItem.innerText || childItem.text || childItem.textContent);
 
                 if (value) {
@@ -205,6 +208,20 @@ class KMLParser {
         value = node.getAttribute(attribute);
 
         return value;
+    };
+
+    getNodeAttributes(node, attributes, feature) {
+        let value = undefined;
+
+        for (let attribute of attributes) {
+            value = node.getAttribute(attribute);
+
+            if (value) {
+                feature[childItem.nodeName] = value.trim();
+            }
+        }
+
+        return feature;
     };
 
     getRGBColor(color) {
@@ -296,7 +313,14 @@ class KMLParser {
     getStyle(styleUrl) {
         let value = {};
         let styleNode = this.styles[styleUrl];
+        let styleObject = this.styles[styleUrl].styleObject;
 
+        // return if already processed
+        if (styleObject) {
+            return styleObject;
+        }
+
+        // if valid node data; decompose style to object
         if (styleNode) {
             console.log(styleNode);
 
@@ -488,7 +512,14 @@ class KMLParser {
     getStyleMap(styleMapUrl) {
         let value = {};
         let styleNode = this.styleMaps[styleMapUrl];
+        let styleObject = this.styleMaps[styleMapUrl].styleObject;
 
+        // return if already processed
+        if (styleObject) {
+            return styleObject;
+        }
+
+        // if valid node data; decompose style to object
         if (styleNode) {
             let stylePairs = styleNode.getElementsByTagName("Pair");
             if (stylePairs && (stylePairs.length > 0)) {
@@ -525,44 +556,69 @@ class KMLParser {
             "addressDetails", "phoneNumber", "snippet", "description", "styleUrl"], feature);
         console.log(placemark, feature);
 
-        // process all features in the placemark
+        // process all geometries in the placemark
+        self.processGeometry(placemark, feature);
+    };
+
+    processGeometry(placemark, feature) {
+        var self = this;
+
         // MultiGeometry
         if (placemark.getElementsByTagName("MultiGeometry").length > 0) {
             for (let childItem of placemark.childNodes) {
-                self.processPlacemark(childItem, feature);
+                if (childItem.nodeName === "MultiGeometry") {
+                    console.log(childItem);
+                    self.processGeometry(childItem, feature);
+                }
             }
         } else {
             // LineString
             if (placemark.getElementsByTagName("LineString").length > 0) {
                 console.log("-> LineString Feature");
+                for (let childItem of placemark.childNodes) {
+                    if (childItem.nodeName === "LineString") {
+                        self.getNodeAttributes(childItem, ["id", "targetId"], feature);
+                        self.getNodeValues(childItem, ["extrude", "tessellate", "altitudeModeGroup", "coordinates"], feature);
+                        console.log(childItem.nodeName, feature);
+                    }
+                }
             }
 
             // Polygon
             if (placemark.getElementsByTagName("Polygon").length > 0) {
                 console.log("-> Polygon Feature");
+                for (let childItem of placemark.childNodes) {
+                    if (childItem.nodeName === "Polygon") {
+                        self.getNodeAttributes(childItem, ["id", "targetId"], feature);
+                        self.getNodeValues(childItem, ["extrude", "tessellate", "altitudeModeGroup", "outerBoundaryIs", "innerBoundaryIs"], feature);
+
+                        console.log(childItem.nodeName, feature);
+                    }
+                }
             }
 
             // Point
             if (placemark.getElementsByTagName("Point").length > 0) {
                 console.log("-> Point Feature");
-            }
-
-            // LinearRing
-            if (placemark.getElementsByTagName("LinearRing").length > 0) {
-                console.log("-> LinearRing Feature");
+                for (let childItem of placemark.childNodes) {
+                    if (childItem.nodeName === "Point") {
+                        self.getNodeAttributes(childItem, ["id", "targetId"], feature);
+                        self.getNodeValues(childItem, ["extrude", "altitudeModeGroup", "coordinates"], feature);
+                        console.log(childItem.nodeName, feature);
+                    }
+                }
             }
 
             // Model
             if (placemark.getElementsByTagName("Model").length > 0) {
                 console.log("-> Model Feature");
+                for (let childItem of placemark.childNodes) {
+                    if (childItem.nodeName === "Model") {
+                        console.log(childItem.nodeName, feature);
+                    }
+                }
             }
         }
-    };
-
-    processGeometry(placemarks, placemark) {
-        let point = placemarks[0].getElementsByTagName("Point");
-
-        console.log(point, placemark);
     };
 
     processPlacemarks(folders) {
@@ -592,8 +648,12 @@ class KMLParser {
         });
     };
 
-    createLayer() {
+    createLayer(map, layer) {
         let self = this;
+
+        // initialize layer for map
+        self.map = map;
+        self.layer = layer;
 
         // build style objects
         Object.keys(self.styles).forEach(function (item) {

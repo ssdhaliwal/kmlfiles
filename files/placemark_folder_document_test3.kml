@@ -138,6 +138,24 @@
 			</Placemark>
 		</Folder>
 		<Placemark>
+			<name>Polygon in root multi document 3</name>
+			<styleUrl>#myDefaultStyles</styleUrl>
+			<MultiGeometry>
+				<Point>
+					<tessellate>1</tessellate>
+					<coordinates>-135,30,500000 -80,30,500000</coordinates>
+				</Point>
+				<LineString>
+					<tessellate>1</tessellate>
+					<coordinates>-122.378009,37.830128,0 -122.377885,37.830379,0</coordinates>
+				</LineString>
+				<Point>
+					<tessellate>1</tessellate>
+					<coordinates>1,1,0</coordinates>
+				</Point>
+			</MultiGeometry>
+		</Placemark>
+		<Placemark>
 			<name>Polygon in root document 3</name>
 			<styleUrl>#myDefaultStyles</styleUrl>
 			<Point>

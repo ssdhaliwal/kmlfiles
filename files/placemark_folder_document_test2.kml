@@ -5,13 +5,92 @@
 	xmlns:atom="http://www.w3.org/2005/Atom">
 	<Document>
 		<name>Folders</name>
+		<Style id="transRedPoly">
+			<LineStyle>
+				<width>4</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>#7d0000ff</color>
+			</PolyStyle>
+		</Style>
+		<Style id="transBluePoly">
+			<LineStyle>
+				<width>4</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>#7d0000ff</color>
+				<fill>1</fill>
+				<outline>1</outline>
+			</PolyStyle>
+		</Style>
 		<Placemark>
-			<name>Polygon in root document 1</name>
+			<name>Point in root document 1</name>
 			<styleUrl>#myDefaultStyles</styleUrl>
 			<Point>
 				<tessellate>1</tessellate>
 				<coordinates>-135,30,500000 -80,30,500000</coordinates>
 			</Point>
+		</Placemark>
+		<Placemark>
+			<name>Point in root document 2</name>
+			<styleUrl>#myDefaultStyles</styleUrl>
+			<Point>
+				<tessellate>1</tessellate>
+				<coordinates>-135,30,500000 1,1,500000</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>Building 40</name>
+			<visibility>0</visibility>
+			<styleUrl>#transBluePoly</styleUrl>
+			<Polygon>
+				<extrude>1</extrude>
+				<altitudeMode>relativeToGround</altitudeMode>
+				<outerBoundaryIs>
+				<LinearRing>
+					<coordinates> -122.0848938459612,37.42257124044786,17
+					-122.0849580979198,37.42211922626856,17
+					-122.0847469573047,37.42207183952619,17
+					-122.0845725380962,37.42209006729676,17
+					-122.0845954886723,37.42215932700895,17
+					-122.0838521118269,37.42227278564371,17
+					-122.083792243335,37.42203539112084,17
+					-122.0835076656616,37.42209006957106,17
+					-122.0834709464152,37.42200987395161,17
+					-122.0831221085748,37.4221046494946,17
+					-122.0829247374572,37.42226503990386,17
+					-122.0829339169385,37.42231242843094,17
+					-122.0833837359737,37.42225046087618,17
+					-122.0833607854248,37.42234159228745,17
+					-122.0834204551642,37.42237075460644,17
+					-122.083659133885,37.42251292011001,17
+					-122.0839758438952,37.42265873093781,17
+					-122.0842374743331,37.42265143972521,17
+					-122.0845036949503,37.4226514386435,17
+					-122.0848020460801,37.42261133916315,17
+					-122.0847882750515,37.42256395055121,17
+					-122.0848938459612,37.42257124044786,17 </coordinates>
+				</LinearRing>
+				</outerBoundaryIs>
+			</Polygon>
+		</Placemark>
+		<Placemark>
+			<name>MultiGeometry in root document 3</name>
+			<styleUrl>#myDefaultStyles</styleUrl>
+			<MultiGeometry>
+				<Point>
+					<tessellate>1</tessellate>
+					<coordinates>-135,30,500000 -80,30,500000</coordinates>
+				</Point>
+				<LineString>
+					<tessellate>1</tessellate>
+					<coordinates>-122.378009,37.830128,0 -122.377885,37.830379,0</coordinates>
+				</LineString>
+				<Point>
+					<tessellate>1</tessellate>
+					<coordinates>1,1,0</coordinates>
+				</Point>
+			</MultiGeometry>
 		</Placemark>
 		<Style id="orange-5px">
 			<LineStyle>
