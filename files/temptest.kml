@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document>
+    <name>Point.kml</name>
+
+    <Placemark>
+      <name>Point 1</name>
+	  <Point>
+	    <coordinates>135.2, 35.3, 0.</coordinates>
+	  </Point>
+    </Placemark>
+    <Placemark>
+      <name>Point 2</name>
+      <Style>
+        <IconStyle><Icon><href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href></Icon></IconStyle>
+      </Style>
+      <Point>
+        <coordinates>135.2, 35.3, 0.</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>Point 3</name>
+      <Style>
+        <IconStyle><Icon><href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href></Icon></IconStyle>
+      </Style>
+      <Point>
+        <coordinates>135.4, 35.48, 0.</coordinates>
+      </Point>
+    </Placemark>
+	<Placemark> 
+	 <name>poly 1</name>
+	 <Polygon> <outerBoundaryIs>  <LinearRing>  
+	  <coordinates>
+	   135.2, 35.4, 0. 
+	   135.4, 35.6, 0.
+	   135.2, 35.6, 0.
+	   135.2, 35.4, 0. 
+	  </coordinates>
+	 </LinearRing> </outerBoundaryIs> </Polygon>	 
+	</Placemark>
+	<Placemark> 
+	 <name>poly 2</name>
+	 <Polygon> <outerBoundaryIs>  <LinearRing>  
+	  <coordinates>
+	   135.2, 35.4, 0. 
+	   135.3, 35.6, 0.
+	   136.2, 35.6, 0.
+	   135.2, 35.4, 0. 
+	  </coordinates>
+	 </LinearRing> </outerBoundaryIs> </Polygon>	 
+	</Placemark>
+</Document>
+</kml>
