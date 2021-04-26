@@ -1,0 +1,126 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Ku Band Text2Kml Formatter</title>
+    <meta name="description" content="Ku Band Text to KML formatter">
+    <meta name="author" content="SDhaliwal">
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/turf.min.js"></script>
+    <script src="js/polyk.js"></script>
+</head>
+
+<body>
+    <h1 style="color: #5e9ca0;">KuBand Text -> KML Converter</h1>
+    <table width="100%">
+        <tr>
+            <th width="45%" style="background-color: grey;">
+                Raw Text File
+            </th>
+            <th width="10%" style="background-color: grey; text-align: center;">
+                <button id="btnParse">PARSE</button>
+            </th>
+            <th width="45%" style="background-color: grey;">
+                Formatted KML
+            </th>
+        </tr>
+        <tr>
+            <td width="45%">
+                <textarea id="kupolyin" rows="50" cols="80">Copy/Paste the Ku Band Text file for Parsing</textarea>
+            </td>
+            <td width="10%" style="background-color: silver;">
+                &nbsp;
+            </td>
+            <td width="45%" style="background-color: silver;">
+                <textarea id="kmlout" rows="50" cols="80" readonly></textarea>
+            </td>
+        </tr>
+    </table>
+</body>
+<script>
+    function formatToKml() {
+        var output = [];
+
+        var lines = $('#kupolyin').val().trim().split(' ');
+        var pointPosit = [];
+        var lineArray = [];
+        var previousPosit = null;
+        var point = [], midPoint = null, point1, point2;
+
+        // polyk parsing
+        for (var i = 0; i < lines.length; i++) {
+            point = lines[i].trim().split(",");
+            output.push(Number(point[0]),Number(point[1]));
+        }
+        console.log(PolyK.Slice(output, -180, -90, -180, 90));
+
+        // turf parsing
+        var pointPosit = [];
+        var lineArray = [];
+        var previousPosit = null;
+        var point = [], midPoint = null, point1, point2;
+        for (var i = 0; i < lines.length; i++) {
+            point = lines[i].trim().split(",");
+            pointPosit = [Number(point[0]), Number(point[1])];
+
+            if (previousPosit) {
+                if (previousPosit[0] < 0 && pointPosit[0] > 0) {
+                    point1 = previousPosit;
+                    point2 = pointPosit;
+                    for (var p = 0; p <= 50; p++) {
+                        midPoint = turf.midpoint(turf.point(point1), turf.point(point2)).geometry.coordinates;
+
+                        if (midPoint[0].toString().substring(0, 11) === "-179.999999") {
+                            point1 = midPoint;
+                            break;
+                        }
+                        if (midPoint[0] < -180) {
+                            point2 = midPoint;
+                        } else {
+                            point1 = midPoint;
+                        }
+                    }
+                    lineArray.push(point1[0] + "," + point1[1] + ",0 ");
+                    lineArray.push((point2[0] * -1) + ",", point2[1] + ",0 ");
+                } else if (previousPosit[0] > 0 && pointPosit[0] < 0) {
+                    point1 = previousPosit;
+                    point2 = pointPosit;
+                    for (var p = 0; p <= 50; p++) {
+                        midPoint = turf.midpoint(turf.point(point1), turf.point(point2)).geometry.coordinates;
+
+                        if (midPoint[0].toString().substring(0, 11) === "179.999999") {
+                            point1 = midPoint;
+                            break;
+                        }
+                        if (midPoint[0] > 180) {
+                            point2 = midPoint;
+                        } else {
+                            point1 = midPoint;
+                        }
+                    }
+                    lineArray.push(point1[0] + "," + point1[1] + ",0 ");
+                    lineArray.push((point2[0] * -1) + ",", point2[1] + ",0 ");
+                }
+            }
+
+            lineArray.push(pointPosit[0] + "," + pointPosit[1] + ",0 ");
+            previousPosit = pointPosit;
+        }
+
+        console.log(lineArray);
+        $("#kmlout").val(output);
+    }
+
+    $("#btnParse").on("click", function () {
+        // clear output areas
+        $("#kmlout").val('');
+
+        // do the conversion
+        formatToKml();
+    });    
+</script>
+
+</html>

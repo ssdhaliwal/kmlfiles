@@ -1,0 +1,163 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Ku Band Text2Kml Formatter</title>
+    <meta name="description" content="Address Reverse Geocoding">
+    <meta name="author" content="SDhaliwal">
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/init.esri.3.28.js"></script>
+</head>
+
+<body>
+    <h1 style="color: #5e9ca0;">KuBand Text -> KML Converter</h1>
+    <table width="100%">
+        <tr>
+            <th width="45%" style="background-color: grey;">
+                Raw Text File
+            </th>
+            <th width="10%" style="background-color: grey; text-align: center;">
+                <button id="btnParse">PARSE</button>
+            </th>
+            <th width="45%" style="background-color: grey;">
+                Formatted KML
+            </th>
+        </tr>
+        <tr>
+            <td width="45%">
+                <textarea id="kupolyin" rows="50" cols="80">Copy/Paste the Ku Band Text file for Parsing</textarea>
+            </td>
+            <td width="10%" style="background-color: silver;">
+                &nbsp;
+            </td>
+            <td width="45%" style="background-color: silver;">
+                <textarea id="kmlout" rows="50" cols="80" readonly></textarea>
+            </td>
+        </tr>
+    </table>
+</body>
+<script>
+    require(["dojo/promise/all", "esri/request"],
+        function (all, request) {
+            /**
+             * Inspect the server response for errors, even when the status code is 200
+             * @param {Object} actual error returned by the server
+             * @param {Object} response headers returned by the server
+             * @param {Function} the entity body returned by the server
+            */
+            function _handleArcGISResponse(error, response, body, callback) {
+                if (error) {
+                    callback(error);
+                } else if (response.statusCode == 200) {
+                    var parsedResponse;
+                    try {
+                        parsedResponse = JSON.parse(body);
+                    } catch (jsonParsingError) {
+                        callback(jsonParsingError);
+                    }
+                    if (parsedResponse.error) {
+                        // An error returned in the body JSON reponse will also be considered an error
+                        callback(parsedResponse.error);
+                    } else {
+                        callback(null, parsedResponse);
+                    }
+                } else {
+                    callback('Unknown Error: HTTP status ' + response.statusCode);
+                }
+            }
+
+            /**
+             * Access to a simple Geocode request
+             * @param {Object} parameters
+             * @param {Function} callback to be called when geocode is complete
+             * geoservice.geocode({ text: "920 SW 3rd Ave, Portland, OR 97204" }, callback);
+            */
+            function geocode(parameters, callback) {
+                if (!parameters.f) {
+                    parameters.f = 'json';
+                }
+
+                // allow a text query like simple geocode service to return all candidate addresses
+                if (parameters.text) {
+                    parameters.singleLine = parameters.text;
+                    delete parameters.text;
+                }
+
+                // build the request url
+                var url = baseUrl(this.options);
+
+                url += '/findAddressCandidates?';
+
+                // at very least you need the Addr_type attribute returned with results
+                if (!parameters.outFields) {
+                    parameters.outFields = "Addr_type";
+                }
+
+                if (parameters.outFields !== '*' &&
+                    parameters.outFields.indexOf('Addr_type') < 0) {
+                    parameters.outFields += ',Addr_type';
+                }
+
+                url += querystring.stringify(parameters);
+
+                request.get(url, function (error, response, body) {
+                    return _handleArcGISResponse(error, response, body, callback);
+                });
+            }
+
+            /**
+             * Reverse Geocode
+             * @param {Object} parameters
+             * @param {Function} callback to be called when reverse geocode is complete
+            */
+            function reverse(parameters, callback) {
+                parameters.f = parameters.f || "json";
+
+                // build the request url
+                var url = baseUrl(this.options);
+
+                url += '/reverseGeocode?';
+                url += querystring.stringify(parameters);
+
+                request.get(url, function (error, response, body) {
+                    return _handleArcGISResponse(error, response, body, callback);
+                });
+            }
+
+            function formatAddress() {
+                // start template fomatting
+                var url = 'https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer'
+
+                var lines = $('#kupolyin').val().split('\n');
+                var line = "";
+
+                for (var i = 0; i < lines.length; i++) {
+                    line = lines[i].trim();
+
+                }
+
+                geocode({ singleLine: "920 SW 3rd Ave, Portland, OR 97201" }, function (err, result) {
+                    if (err) {
+                        console.error("ERROR: " + err);
+                    } else {
+                        console.log("Found it at " + result.candidates[0].location.y
+                            + ", " + result.candidates[0].location.x);
+                    }
+                });
+            }
+
+            $("#btnParse").on("click", function () {
+                // clear output areas
+                $("#kmlout").val('');
+
+                // do the conversion
+                formatAddress();
+            });
+        });
+
+</script>
+
+</html>

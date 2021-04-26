@@ -1,0 +1,35 @@
+# TEMPLATE - 01-START
+<?xml version='1.0'?>
+<kml xmlns='http://www.opengis.net/kml/2.2'>
+    <Document>
+        <name>areas.kml</name>
+        <open>1</open>
+        <Style id='basicPoly'>
+            <PolyStyle><color>80FFFFFF</color><colorMode>normal</colorMode><fill>1</fill><outline>1</outline></PolyStyle><LineStyle><color>FF000000</color><width>2</width></LineStyle>
+        </Style>
+        <Style id='basicLine'>
+            <LineStyle><color>FFFFFFFF</color><width>2</width></LineStyle>
+        </Style>
+        <Placemark>
+            <name>INMARSAR 25E SPOTS (-180)</name>
+            <styleUrl>#basicPoly</styleUrl>
+            <MultiGeometry>
+# TEMPLATE - 01-END
+# TEMPLATE - 02-START
+                <Polygon>
+                    <outerBoundaryIs>
+                        <LinearRing>
+                            <coordinates>
+# TEMPLATE - 02-END
+# TEMPLATE - 03-START
+                            </coordinates>
+                        </LinearRing>
+                    </outerBoundaryIs>
+                </Polygon>
+# TEMPLATE - 03-END
+# TEMPLATE - 04-START
+            </MultiGeometry>
+        </Placemark>
+    </Document>
+</kml>
+# TEMPLATE - 04-END

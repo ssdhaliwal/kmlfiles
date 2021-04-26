@@ -1,0 +1,239 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Ku Band Text2Kml Formatter</title>
+    <meta name="description" content="Ku Band Text to KML formatter">
+    <meta name="author" content="SDhaliwal">
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/jsts.min.js"></script>
+</head>
+
+<body>
+    <h1 style="color: #5e9ca0;">KuBand Text -> KML Converter</h1>
+    <table width="100%">
+        <tr>
+            <th width="45%" style="background-color: grey;">
+                Raw Text File
+            </th>
+            <th width="10%" style="background-color: grey; text-align: center;">
+                <button id="btnParse">PARSE</button>
+            </th>
+            <th width="45%" style="background-color: grey;">
+                Formatted KML
+            </th>
+        </tr>
+        <tr>
+            <td width="45%">
+                <textarea id="kupolyin" rows="50" cols="80">Copy/Paste the Ku Band Text file for Parsing</textarea>
+            </td>
+            <td width="10%" style="background-color: silver;">
+                &nbsp;
+            </td>
+            <td width="45%" style="background-color: silver;">
+                <textarea id="kmlout" rows="50" cols="80" readonly></textarea>
+            </td>
+        </tr>
+    </table>
+</body>
+<script>
+    function formatToKml() {
+        var title = "", layerName = "", errMsg = "", output = "";
+        var firstDelimiter = false, goodTerminator = false,
+            documentStarted = false, placemarkStarted = false, 
+            geoJSON = {"type": "FeatureCollection","features": [
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": []
+                    }
+                }, {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": [[-180.0, 90.0],[-180.0, -90.0]]
+                    }
+                }
+            ]};
+
+        // start template fomatting
+        var lines = $('#kupolyin').val().split('\n');
+        var line = "";
+        for (var i = 0; i < lines.length; i++) {
+            line = lines[i].trim();
+
+            // poly split
+            // if title has not be set, finish it
+            if (!firstDelimiter) {
+                if (!line.startsWith("#")) {
+                    title += (!title ? (title += " " + line) : line);
+                    continue;
+                }
+
+                if (!title) {
+                    errMsg = "first line is comment line; invalid format";
+                    break;
+                }
+            }
+
+            // get layername if not set
+            if (line.startsWith("#")) {
+                firstDelimiter = true;
+
+                // if document has not been started, create it
+                if (!documentStarted) {
+                    documentStarted = true;
+                    output = "<?xml version='1.0'?>" +
+                        "<kml xmlns='http://www.opengis.net/kml/2.2'>" +
+                        "    <Document>" +
+                        "        <name>" + title + "</name>" +
+                        "        <open>1</open>" +
+                        "        <Style id='basicPoly'>" +
+                        "            <PolyStyle><color>80FFFFFF</color><colorMode>normal</colorMode><fill>1</fill><outline>1</outline></PolyStyle><LineStyle><color>FF000000</color><width>2</width></LineStyle>" +
+                        "        </Style>" +
+                        "        <Style id='basicLine'>" +
+                        "            <LineStyle><color>FFFFFFFF</color><width>2</width></LineStyle>" +
+                        "        </Style>";
+                }
+
+                // if placemark is started, close it
+                if (placemarkStarted) {
+                    placemarkStarted = false;
+
+                    output += "            </MultiGeometry>" +
+                        "        </Placemark>";
+                }
+
+                // check if there are sub layers
+                if (line.length > 1) {
+                    layerName = line.substring(2);
+                }
+
+                // end of file
+                if (line === "# end") {
+                    goodTerminator = true;
+                    break;
+                }
+
+                continue;
+            }
+
+            // get lines to create polygons
+            if (!layerName) {
+                layerName = title;
+            }
+
+            // if placemark has not been started, start it
+            if (!placemarkStarted) {
+                placemarkStarted = true;
+
+                output += "        <Placemark>" +
+                    "            <name>" + layerName + "</name>" +
+                    "            <styleUrl>#basicPoly</styleUrl>" +
+                    "            <MultiGeometry>";
+            }
+
+            // review the polygon and make sure it does not cross 180/-180
+            // - if lon signature is not same as previous; then split the polygon
+            // - if coords match strating coords; then split the polygon
+            coordsArray = line.split(" ");
+            coordsArrayUpdated = JSON.parse(JSON.stringify(coordsArray));
+            firstCoord = "";
+
+            // jsts split
+            geoJSON.features[0].geometry.coordinates = [];
+            for (var j = 0; j < coordsArray.length; j++) {
+                coords = coordsArray[j].trim().split(",");
+
+                geoJSON.features[0].geometry.coordinates.push([coords[0], coords[1]]);
+            }
+            console.log(JSON.stringify(geoJSON));
+            var reader = new jsts.io.GeoJSONReader();
+            var input = reader.read(geoJSON.features[0].geometry);
+            console.log(input);
+
+            /*
+            var reader = new jsts.io.WKTReader();
+            var writer = new jsts.io.WKTWriter();
+
+            var a = reader.read('POLYGON ((' + jstsPoly + '))');
+            var b = reader.read('LINESTRING (-180 90, -180 0, -180 -90)');
+            var union = a.getExteriorRing().union(b);
+
+            var polygonizer = new jsts.operation.polygonize.Polygonizer();
+            polygonizer.add(union);
+
+            var polygons = polygonizer.getPolygons();
+            for (var i = polygons.iterator(); i.hasNext();) {
+                var polygon = i.next();
+                console.log(writer.write(polygon));
+            }
+            */
+            for (var j = 0; j < coordsArray.length; j++) {
+                coords = coordsArray[j].trim().split(",");
+
+                if (!firstCoord) {
+                    output += "            <Polygon>" +
+                        "                    <outerBoundaryIs>" +
+                        "                        <LinearRing>" +
+                        "                            <coordinates>";
+
+                    output += coords + " ";
+
+                    firstCoord = coords;
+                    continue;
+                }
+
+                if (firstCoord === coords) {
+                    output += coords +
+                        "                            </coordinates>" +
+                        "                        </LinearRing>" +
+                        "                    </outerBoundaryIs>" +
+                        "                </Polygon>";
+
+                    firstCoord = "";
+                } else {
+                    output += coords + " ";
+                }
+            }
+
+            // add the polyline geometry
+            if (firstCoord) {
+                output += "                            </coordinates>" +
+                    "                        </LinearRing>" +
+                    "                    </outerBoundaryIs>" +
+                    "                </Polygon>";
+            }
+        };
+
+        // if not terminated, error
+        if (!goodTerminator && !errMsg) {
+            errMsg = "last line is not end of file indicator; invalid format";
+        }
+
+        // end terminator
+        output += "    </Document>" +
+            "  </kml>";
+
+        // if error, then push the message - else output
+        if (errMsg) {
+            $("#kmlout").val(errMsg);
+        } else {
+            $("#kmlout").val(output);
+        }
+    }
+
+    $("#btnParse").on("click", function () {
+        // clear output areas
+        $("#kmlout").val('');
+
+        // do the conversion
+        formatToKml();
+    });    
+</script>
+
+</html>
