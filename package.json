@@ -9,7 +9,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.4",
-    "jsdom": "^14.0.0",
+    "jsdom": "^16.5.0",
     "request": "^2.88.0",
     "yargs": "^13.2.2"
   },
